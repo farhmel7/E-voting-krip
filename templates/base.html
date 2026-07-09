@@ -65,7 +65,12 @@
                         Hitung Suara
                     </a>
 
-                    <a href="/export">
+                    <a href="/uji-manipulasi" class="{% if request.path == '/uji-manipulasi' %}active{% endif %}">
+                        <span class="menu-icon">⚠️</span>
+                        Uji Simulasi
+                    </a>
+
+                    <a href="/export" class="{% if request.path == '/export' %}active{% endif %}">
                         <span class="menu-icon">📥</span>
                         Export Laporan
                     </a>
@@ -79,29 +84,12 @@
                         <span class="menu-icon">🧾</span>
                         Audit Log
                     </a>
-
-                    {% if enable_tamper_demo %}
-                        <a href="/uji-manipulasi" class="{% if request.path == '/uji-manipulasi' %}active{% endif %}">
-                            <span class="menu-icon">⚠️</span>
-                            Uji Manipulasi
-                        </a>
-                    {% endif %}
                 {% endif %}
 
                 {% if session.get("role") %}
                     <a href="/logout">
                         <span class="menu-icon">🚪</span>
                         Logout
-                    </a>
-                {% else %}
-                    <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">
-                        <span class="menu-icon">🔐</span>
-                        Login
-                    </a>
-
-                    <a href="/register" class="{% if request.path == '/register' %}active{% endif %}">
-                        <span class="menu-icon">📝</span>
-                        Registrasi
                     </a>
                 {% endif %}
             </nav>

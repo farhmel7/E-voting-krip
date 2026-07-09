@@ -663,8 +663,9 @@ def verify_report():
 @admin_required
 def uji_manipulasi():
     if not ENABLE_TAMPER_DEMO:
-        flash("Fitur uji manipulasi sedang dinonaktifkan.", "error")
-        return redirect(url_for("verify"))
+        pass  # demo manipulasi diaktifkan
+        # # flash("Fitur uji manipulasi sedang dinonaktifkan.", "error")
+        # # return redirect(url_for("verify"))
 
     if request.method == "POST":
         admin_password = request.form.get("admin_password", "").strip()

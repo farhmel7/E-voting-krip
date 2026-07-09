@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Daftar Kandidat</h2>
+
+{% for candidate in candidates %}
+    <div class="card">
+        <h3>{{ candidate }}</h3>
+        <p>Calon penerima suara dalam sistem e-voting.</p>
+    </div>
+{% endfor %}
+
+{% endblock %}

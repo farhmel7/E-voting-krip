@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Registrasi Pemilih</h2>
+
+{% if voter_id and token %}
+    <div class="alert success">
+        Registrasi berhasil. Simpan data ini baik-baik karena token hanya ditampilkan satu kali.
+    </div>
+
+    <div class="card">
+        <h3>Data Pemilih Baru</h3>
+
+        <p><strong>Nama:</strong> {{ name }}</p>
+        <p><strong>ID Pemilih:</strong> {{ voter_id }}</p>
+        <p><strong>Token Voting:</strong> {{ token }}</p>
+
+        <p>
+            Gunakan <strong>Token Voting</strong> dan <strong>PIN</strong>
+            untuk login sebagai pemilih.
+        </p>
+
+        <p>
+            Token tidak akan ditampilkan kembali setelah halaman ini ditutup.
+            Jika token lupa, pemilih harus meminta reset token kepada admin.
+        </p>
+    </div>
+
+    <a href="/login" class="button-link">Login Sekarang</a>
+{% else %}
+    <div class="card">
+        <p>
+            Silakan lakukan registrasi untuk mendapatkan ID pemilih otomatis
+            dan token voting.
+        </p>
+
+        <p>
+            Registrasi hanya dapat dilakukan oleh pemilih yang memiliki
+            <strong>Kode Akses Pemilih</strong> resmi.
+        </p>
+    </div>
+
+    <div class="card">
+        <form method="POST" action="/register">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <label for="name">Nama Pemilih</label>
+            <input
+                type="text"
+                name="name"
+                id="name"
+                placeholder="Masukkan nama lengkap"
+                required
+            >
+
+            <label for="pin">Buat PIN Rahasia</label>
+            <input
+                type="password"
+                name="pin"
+                id="pin"
+                placeholder="Minimal 4 digit atau karakter"
+                required
+            >
+
+            <label for="access_code">Kode Akses Pemilih</label>
+            <input
+                type="text"
+                name="access_code"
+                id="access_code"
+                placeholder="Masukkan kode akses pemilih"
+                required
+            >
+
+            <button type="submit">Registrasi Pemilih</button>
+        </form>
+    </div>
+{% endif %}
+
+{% endblock %}

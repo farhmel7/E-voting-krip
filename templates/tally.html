@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Hasil Perhitungan Suara</h2>
+
+<div class="card">
+    <p>
+        Halaman ini menampilkan hasil suara sah dan data suara yang terdeteksi
+        mengalami manipulasi.
+    </p>
+</div>
+
+<h3>Hasil Suara Sah</h3>
+
+{% for candidate, total in result.items() %}
+    <div class="card">
+        <h3>{{ candidate }}</h3>
+        <p>{{ total }} suara sah</p>
+    </div>
+{% endfor %}
+
+{% if invalid_votes %}
+    <h3>Data Suara Terdeteksi Manipulasi</h3>
+
+    <div class="alert error">
+        Ada data suara yang berubah dan tidak dihitung sebagai suara sah.
+    </div>
+
+    {% for item in invalid_votes %}
+        <div class="card">
+            <p><strong>Blok:</strong> {{ item["block_index"] }}</p>
+            <p><strong>Kandidat Terbaca Setelah Manipulasi:</strong> {{ item["candidate"] }}</p>
+            <p><strong>Alasan Tidak Valid:</strong> {{ item["reason"] }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="alert success">
+        Tidak ada data suara yang terdeteksi manipulasi.
+    </div>
+{% endif %}
+
+<a href="/export" class="button-link">Download Laporan CSV</a>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Data Pemilih</h2>
+
+<div class="card">
+    <p>
+        Halaman ini digunakan admin untuk melihat daftar pemilih yang sudah terdaftar,
+        status voting, jumlah kesalahan PIN, status akun, reset akun terkunci,
+        dan reset token jika pemilih lupa token.
+    </p>
+    <p>
+        <strong>Total Pemilih:</strong> {{ total_voters }}
+    </p>
+</div>
+
+<style>
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 16px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        min-width: 1050px;
+    }
+
+    .data-table th {
+        background: #2563eb;
+        color: white;
+        padding: 14px;
+        text-align: left;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 14px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .data-table tr:hover {
+        background: #f8fbff;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .badge-neutral {
+        background: #e5e7eb;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .empty-data {
+        text-align: center;
+        padding: 28px;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .action-wrapper {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-form {
+        margin: 0;
+        display: inline-block;
+    }
+
+    .reset-button {
+        margin: 0;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 10px;
+        background: #dc2626;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .reset-button:hover {
+        background: #b91c1c;
+    }
+
+    .token-button {
+        margin: 0;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .token-button:hover {
+        background: #1d4ed8;
+    }
+
+    .disabled-text {
+        color: #9ca3af;
+        font-size: 12px;
+        font-weight: 700;
+    }
+</style>
+
+<div class="card">
+    <h3>Daftar Pemilih Terdaftar</h3>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID Pemilih</th>
+                    <th>Nama Pemilih</th>
+                    <th>Status Voting</th>
+                    <th>PIN Salah</th>
+                    <th>Status Akun</th>
+                    <th>Tanggal Registrasi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% if voters %}
+                    {% for voter in voters %}
+                        <tr>
+                            <td>{{ voter.voter_id }}</td>
+                            <td>{{ voter.name }}</td>
+
+                            <td>
+                                {% if voter.has_voted == 1 %}
+                                    <span class="badge badge-success">Sudah Voting</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Belum Voting</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if voter.failed_login_count > 0 %}
+                                    <span class="badge badge-warning">
+                                        {{ voter.failed_login_count }} kali
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-neutral">0 kali</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if voter.is_locked %}
+                                    <span class="badge badge-danger">
+                                        Terkunci {{ voter.remaining_seconds }} detik
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-success">Aktif</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ voter.created_at }}</td>
+
+                            <td>
+                                <div class="action-wrapper">
+                                    {% if voter.is_locked or voter.failed_login_count > 0 %}
+                                        <form
+                                            method="POST"
+                                            action="/reset-pemilih/{{ voter.voter_id }}"
+                                            class="action-form"
+                                            onsubmit="return confirm('Yakin ingin reset keamanan akun pemilih {{ voter.voter_id }}?')"
+                                        >
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="reset-button">
+                                                Reset Akun
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    <form
+                                        method="POST"
+                                        action="/reset-token/{{ voter.voter_id }}"
+                                        class="action-form"
+                                        onsubmit="return confirm('Yakin ingin reset token pemilih {{ voter.voter_id }}? Token lama tidak akan berlaku lagi.')"
+                                    >
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="token-button">
+                                            Reset Token
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-data">
+                            Belum ada pemilih yang terdaftar.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

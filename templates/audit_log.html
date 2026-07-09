@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Audit Log Sistem</h2>
+
+<div class="card">
+    <p>
+        Halaman ini menampilkan riwayat aktivitas penting yang terjadi di sistem,
+        seperti login admin, voting, verifikasi blockchain, manipulasi data,
+        restore data, dan export laporan.
+    </p>
+</div>
+
+{% if logs %}
+    {% for log in logs %}
+        <div class="card">
+            <h3>{{ log["action"] }}</h3>
+
+            <p><strong>Role:</strong> {{ log["role"] }}</p>
+            <p><strong>Keterangan:</strong> {{ log["description"] }}</p>
+            <p><strong>IP Address:</strong> {{ log["ip_address"] }}</p>
+            <p><strong>Waktu:</strong> {{ log["created_at"] }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="alert error">
+        Belum ada riwayat aktivitas yang tercatat.
+    </div>
+{% endif %}
+{% endblock %}

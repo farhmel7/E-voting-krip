@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard-header">
+    <div>
+        <h2>Dashboard Sistem</h2>
+        <p>Ringkasan data real-time seputar sistem e-voting.</p>
+    </div>
+
+    <div class="reminder-pill">
+        📣 Ayo gunakan hak suara kamu! 💙
+    </div>
+</div>
+
+<div class="stats-grid">
+
+    {% if session.get("role") == "admin" %}
+        <a href="/cek-pemilih" class="stat-card blue dashboard-link">
+    {% else %}
+        <a href="/profile" class="stat-card blue dashboard-link">
+    {% endif %}
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <h3>Total Pemilih Terdaftar</h3>
+            <h1>{{ total_voters }}</h1>
+            <p>pemilih</p>
+        </div>
+        <div class="mini-line"></div>
+        <div class="card-arrow">›</div>
+    </a>
+
+    {% if session.get("role") == "admin" %}
+        <a href="/tally" class="stat-card purple dashboard-link">
+    {% else %}
+        <a href="/vote" class="stat-card purple dashboard-link">
+    {% endif %}
+        <div class="stat-icon">🗳️</div>
+        <div class="stat-info">
+            <h3>Total Suara Masuk</h3>
+            <h1>{{ total_votes }}</h1>
+            <p>suara</p>
+        </div>
+        <div class="mini-line"></div>
+        <div class="card-arrow">›</div>
+    </a>
+
+    {% if session.get("role") == "admin" %}
+        <a href="/chain" class="stat-card pink dashboard-link">
+    {% else %}
+        <a href="/candidates" class="stat-card pink dashboard-link">
+    {% endif %}
+        <div class="stat-icon">🧱</div>
+        <div class="stat-info">
+            <h3>Total Blok</h3>
+            <h1>{{ total_blocks }}</h1>
+            <p>blok termasuk genesis block</p>
+        </div>
+        <div class="mini-line"></div>
+        <div class="card-arrow">›</div>
+    </a>
+
+</div>
+
+<div class="security-box">
+    <div class="security-icon">🔐</div>
+
+    <div>
+        <h3>Keamanan Terjamin 🔒</h3>
+        <p>
+            Setiap suara dienkripsi dan disimpan menggunakan mekanisme hash chain
+            untuk mendeteksi manipulasi data.
+        </p>
+    </div>
+
+    {% if session.get("role") == "admin" %}
+        <a href="/verify" class="learn-btn">Verifikasi Data →</a>
+    {% else %}
+        <a href="/profile" class="learn-btn">Lihat Profil →</a>
+    {% endif %}
+</div>
+
+{% endblock %}

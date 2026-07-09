@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Data Blockchain / Hash Chain</h2>
+
+<div class="card">
+    <p>
+        Halaman ini menampilkan data blok suara yang sudah disimpan.
+        Setiap blok berisi data suara terenkripsi, hash, HMAC, dan previous hash.
+    </p>
+</div>
+
+<pre>{{ chain_json }}</pre>
+
+{% endblock %}

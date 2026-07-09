@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure E-Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="app-wrapper">
+
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <div class="brand-icon">EV</div>
+                <div>
+                    <h2>Secure E-Voting</h2>
+                    <p>Blockchain & Cryptography</p>
+                </div>
+            </div>
+
+            <nav class="menu">
+                {% if session.get("role") %}
+                    <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                        <span class="menu-icon">🏠</span>
+                        Dashboard
+                    </a>
+
+                    <a href="/candidates" class="{% if request.path == '/candidates' %}active{% endif %}">
+                        <span class="menu-icon">👥</span>
+                        Kandidat
+                    </a>
+                {% endif %}
+
+                {% if session.get("role") == "voter" %}
+                    <a href="/profile" class="{% if request.path == '/profile' %}active{% endif %}">
+                        <span class="menu-icon">👤</span>
+                        Profil
+                    </a>
+
+                    <a href="/vote" class="{% if request.path == '/vote' %}active{% endif %}">
+                        <span class="menu-icon">🗳️</span>
+                        Voting
+                    </a>
+                {% endif %}
+
+                {% if session.get("role") == "admin" %}
+                    <a href="/cek-pemilih" class="{% if request.path == '/cek-pemilih' %}active{% endif %}">
+                        <span class="menu-icon">📋</span>
+                        Data Pemilih
+                    </a>
+
+                    <a href="/verify" class="{% if request.path == '/verify' %}active{% endif %}">
+                        <span class="menu-icon">✅</span>
+                        Verifikasi
+                    </a>
+
+                    <a href="/chain" class="{% if request.path == '/chain' %}active{% endif %}">
+                        <span class="menu-icon">🔗</span>
+                        Blockchain
+                    </a>
+
+                    <a href="/tally" class="{% if request.path == '/tally' %}active{% endif %}">
+                        <span class="menu-icon">📊</span>
+                        Hitung Suara
+                    </a>
+
+                    <a href="/export">
+                        <span class="menu-icon">📥</span>
+                        Export Laporan
+                    </a>
+
+                    <a href="/verify-report" class="{% if request.path == '/verify-report' %}active{% endif %}">
+                        <span class="menu-icon">🔍</span>
+                        Verifikasi Laporan
+                    </a>
+
+                    <a href="/audit-log" class="{% if request.path == '/audit-log' %}active{% endif %}">
+                        <span class="menu-icon">🧾</span>
+                        Audit Log
+                    </a>
+
+                    {% if enable_tamper_demo %}
+                        <a href="/uji-manipulasi" class="{% if request.path == '/uji-manipulasi' %}active{% endif %}">
+                            <span class="menu-icon">⚠️</span>
+                            Uji Manipulasi
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                {% if session.get("role") %}
+                    <a href="/logout">
+                        <span class="menu-icon">🚪</span>
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">
+                        <span class="menu-icon">🔐</span>
+                        Login
+                    </a>
+
+                    <a href="/register" class="{% if request.path == '/register' %}active{% endif %}">
+                        <span class="menu-icon">📝</span>
+                        Registrasi
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-promo">
+                <div>
+                    <h3>Data Aman</h3>
+                    <p>Hash, HMAC, Enkripsi</p>
+                </div>
+                <div class="promo-icon">🛡️</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <div class="topbar-text">
+                <h1>Sistem E-Voting Aman</h1>
+                <p>
+                    Sistem voting digital dengan enkripsi, HMAC, hash chain,
+                    audit log, CSRF protection, backup database, dan verifikasi laporan.
+                </p>
+            </div>
+
+            <div class="topbar-visual">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    Sistem Aktif
+                </div>
+
+                <div class="shield-illustration">
+                    <div class="check-bg">✓</div>
+                    <div class="shield-bg">🛡️</div>
+                    <div class="lock-bg">🔒</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+</div>
+
+</body>
+</html>

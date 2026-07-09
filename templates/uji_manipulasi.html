@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Uji Manipulasi Data</h2>
+
+<div class="card">
+    <p>
+        Halaman ini digunakan untuk simulasi pengujian keamanan data suara.
+        Admin dapat memilih suara asal yang ingin dimanipulasi, lalu menentukan
+        kandidat tujuan manipulasi.
+    </p>
+    <p>
+        Sebelum manipulasi dilakukan, data suara asli akan dibackup terlebih dahulu
+        agar bisa dikembalikan melalui fitur restore.
+    </p>
+</div>
+
+<div class="card">
+    <h3>Simulasi Manipulasi Suara</h3>
+
+    <form method="POST" action="/uji-manipulasi">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <label for="source_candidate">Suara Asal yang Ingin Dimanipulasi</label>
+        <select name="source_candidate" id="source_candidate" required>
+            <option value="">-- Pilih Kandidat Asal --</option>
+
+            {% for candidate in candidates %}
+                <option value="{{ candidate }}">{{ candidate }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="target_candidate">Diubah Menjadi Kandidat</label>
+        <select name="target_candidate" id="target_candidate" required>
+            <option value="">-- Pilih Kandidat Tujuan --</option>
+
+            {% for candidate in candidates %}
+                <option value="{{ candidate }}">{{ candidate }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="admin_password">Konfirmasi Password Admin</label>
+        <input
+            type="password"
+            name="admin_password"
+            id="admin_password"
+            placeholder="Masukkan password admin"
+            required
+        >
+
+        <button type="submit">Jalankan Simulasi Manipulasi</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Contoh Skenario</h3>
+
+    <p>
+        Misalnya hasil suara awal:
+    </p>
+
+    <pre>
+Kandidat 1 = 1 suara
+Kandidat 2 = 1 suara
+Kandidat 3 = 0 suara
+    </pre>
+
+    <p>
+        Admin dapat mencoba memilih:
+    </p>
+
+    <pre>
+Suara asal: Kandidat 2
+Diubah menjadi: Kandidat 3
+    </pre>
+
+    <p>
+        Setelah simulasi dijalankan, sistem akan mengubah satu suara dari Kandidat 2
+        menjadi Kandidat 3. Namun, karena data sudah dimanipulasi, sistem akan
+        mendeteksi perubahan tersebut melalui HMAC dan hash chain.
+    </p>
+</div>
+
+<div class="card">
+    <h3>Restore Data Manipulasi</h3>
+
+    <p>
+        Gunakan fitur ini untuk mengembalikan data suara terakhir yang sudah
+        dimanipulasi ke data asli sebelum simulasi.
+    </p>
+
+    <form method="POST" action="/restore-manipulasi">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <label for="restore_password">Konfirmasi Password Admin</label>
+        <input
+            type="password"
+            name="admin_password"
+            id="restore_password"
+            placeholder="Masukkan password admin"
+            required
+        >
+
+        <button type="submit">Restore Data Terakhir</button>
+    </form>
+</div>
+
+{% endblock %}

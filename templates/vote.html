@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Halaman Voting</h2>
+
+<div class="card">
+    <p>
+        Silakan pilih kandidat pilihan Anda. Setiap pemilih hanya dapat melakukan
+        voting satu kali.
+    </p>
+
+    <p><strong>Nama Pemilih:</strong> {{ voter["name"] }}</p>
+    <p><strong>ID Pemilih:</strong> {{ voter["voter_id"] }}</p>
+
+    {% if voter["has_voted"] == 1 %}
+        <div class="alert success">
+            Anda sudah melakukan voting. Terima kasih atas partisipasi Anda.
+        </div>
+    {% else %}
+        <div class="alert error">
+            Anda belum melakukan voting.
+        </div>
+    {% endif %}
+</div>
+
+{% if voter["has_voted"] == 0 %}
+    <div class="card">
+        <form method="POST" action="/vote">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <label for="candidate">Pilih Kandidat</label>
+            <select name="candidate" id="candidate" required>
+                <option value="">-- Pilih Kandidat --</option>
+
+                {% for candidate in candidates %}
+                    <option value="{{ candidate }}">{{ candidate }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Kirim Suara</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

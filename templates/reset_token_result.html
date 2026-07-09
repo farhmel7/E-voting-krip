@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Reset Token Pemilih</h2>
+
+<div class="alert success">
+    {{ message }}
+</div>
+
+<div class="card">
+    <h3>Token Baru Pemilih</h3>
+
+    <p>
+        Token baru untuk pemilih dengan ID:
+        <strong>{{ voter_id }}</strong>
+    </p>
+
+    <p>
+        Simpan token ini dengan baik karena token hanya ditampilkan satu kali.
+    </p>
+
+    <pre>{{ new_token }}</pre>
+
+    <div style="margin-top: 16px;">
+        <a href="/cek-pemilih" class="button-link">
+            Kembali ke Data Pemilih
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Catatan Keamanan</h3>
+
+    <p>
+        Token lama sudah tidak berlaku. Pemilih harus menggunakan token baru ini
+        bersama PIN yang sudah dibuat sebelumnya untuk login.
+    </p>
+
+    <p>
+        Sistem tidak menyimpan token asli di database. Database hanya menyimpan
+        hash token, sehingga token tidak bisa dilihat ulang setelah halaman ini ditutup.
+    </p>
+</div>
+{% endblock %}

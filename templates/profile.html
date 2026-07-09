@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Profil Pemilih</h2>
+
+<div class="card">
+    <p><b>Nama:</b> {{ voter["name"] }}</p>
+    <p><b>ID Pemilih:</b> {{ voter["voter_id"] }}</p>
+
+    {% if voter["has_voted"] == 1 %}
+        <p><b>Status Voting:</b> Sudah voting</p>
+    {% else %}
+        <p><b>Status Voting:</b> Belum voting</p>
+    {% endif %}
+
+    <p><b>Token:</b> Sudah dibuat dan disimpan dalam bentuk hash</p>
+    <p><b>PIN:</b> Sudah dibuat dan disimpan dalam bentuk hash</p>
+    <p><b>Waktu Registrasi:</b> {{ voter["created_at"] }}</p>
+</div>
+
+<a href="/vote" class="button-link">Masuk ke Halaman Voting</a>
+{% endblock %}

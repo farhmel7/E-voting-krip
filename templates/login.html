@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Login Sistem</h2>
+
+<div class="card">
+    <p>
+        Silakan login sesuai peran. Admin menggunakan username dan password,
+        sedangkan pemilih menggunakan token voting dan PIN.
+    </p>
+</div>
+
+<div class="card">
+    <h3>Login Admin</h3>
+
+    <form method="POST" action="/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="role" value="admin">
+
+        <label for="username">Username Admin</label>
+        <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="Masukkan username admin"
+            required
+        >
+
+        <label for="password">Password Admin</label>
+        <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Masukkan password admin"
+            required
+        >
+
+        <button type="submit">Login Admin</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Login Pemilih</h3>
+
+    <form method="POST" action="/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="role" value="voter">
+
+        <label for="token">Token Voting</label>
+        <input
+            type="text"
+            name="token"
+            id="token"
+            placeholder="Masukkan token voting"
+            required
+        >
+
+        <label for="pin">PIN Rahasia</label>
+        <input
+            type="password"
+            name="pin"
+            id="pin"
+            placeholder="Masukkan PIN"
+            required
+        >
+
+        <button type="submit">Login Pemilih</button>
+    </form>
+</div>
+
+<div class="card">
+    <p>
+        Belum punya token voting?
+        <a href="/register">Registrasi pemilih di sini</a>
+    </p>
+</div>
+{% endblock %}

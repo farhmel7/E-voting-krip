@@ -852,6 +852,35 @@ def reset_token_pemilih(voter_id):
     return redirect(url_for("cek_pemilih"))
 
 
+@app.route("/hapus-pemilih/<voter_id>", methods=["POST"])
+@admin_required
+def hapus_pemilih(voter_id):
+    backup_path = create_database_backup("before_delete_voter")
+
+    success, message = system.delete_voter(voter_id)
+
+    if success:
+        system.add_audit_log(
+            "admin",
+            "HAPUS_AKUN_PEMILIH",
+            f"{message} Backup dibuat: {backup_path}",
+            get_ip_address()
+        )
+
+        flash(message, "success")
+    else:
+        system.add_audit_log(
+            "admin",
+            "HAPUS_AKUN_PEMILIH_GAGAL",
+            message,
+            get_ip_address()
+        )
+
+        flash(message, "error")
+
+    return redirect(url_for("cek_pemilih"))
+
+
 @app.route("/audit-log")
 @admin_required
 def audit_log():

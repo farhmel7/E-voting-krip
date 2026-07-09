@@ -769,6 +769,28 @@ class SecureEVotingSystem:
 
         return True, f"Status keamanan pemilih {voter_id} berhasil direset. Akun sudah aktif kembali."
 
+    def delete_voter(self, voter_id):
+        voter = self.get_voter(voter_id)
+
+        if voter is None:
+            return False, "Data pemilih tidak ditemukan."
+
+        if voter["has_voted"] == 1:
+            return False, "Akun pemilih tidak dapat dihapus karena pemilih sudah melakukan voting."
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "DELETE FROM voters WHERE voter_id = ?",
+            (voter_id,)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return True, f"Akun pemilih {voter_id} berhasil dihapus."
+
     def add_audit_log(self, role, action, description, ip_address=None):
         conn = get_connection()
         cursor = conn.cursor()

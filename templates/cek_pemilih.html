@@ -7,7 +7,7 @@
     <p>
         Halaman ini digunakan admin untuk melihat daftar pemilih yang sudah terdaftar,
         status voting, jumlah kesalahan PIN, status akun, reset akun terkunci,
-        dan reset token jika pemilih lupa token.
+        reset token jika pemilih lupa token, dan menghapus akun pemilih yang belum voting.
     </p>
     <p>
         <strong>Total Pemilih:</strong> {{ total_voters }}
@@ -27,7 +27,7 @@
         background: white;
         border-radius: 16px;
         overflow: hidden;
-        min-width: 1050px;
+        min-width: 1180px;
     }
 
     .data-table th {
@@ -94,6 +94,7 @@
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .action-form {
@@ -133,10 +134,27 @@
         background: #1d4ed8;
     }
 
+    .delete-button {
+        margin: 0;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 10px;
+        background: #7f1d1d;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        background: #450a0a;
+    }
+
     .disabled-text {
         color: #9ca3af;
         font-size: 12px;
         font-weight: 700;
+        white-space: nowrap;
     }
 </style>
 
@@ -221,6 +239,24 @@
                                             Reset Token
                                         </button>
                                     </form>
+
+                                    {% if voter.has_voted == 0 %}
+                                        <form
+                                            method="POST"
+                                            action="/hapus-pemilih/{{ voter.voter_id }}"
+                                            class="action-form"
+                                            onsubmit="return confirm('Yakin ingin menghapus akun pemilih {{ voter.voter_id }}? Akun yang dihapus tidak bisa dikembalikan kecuali dari backup database.')"
+                                        >
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="delete-button">
+                                                Hapus Akun
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="disabled-text">
+                                            Tidak bisa dihapus
+                                        </span>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

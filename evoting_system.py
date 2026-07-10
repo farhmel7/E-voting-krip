@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import os
+import secrets
 import time
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes, serialization
@@ -178,6 +179,15 @@ class SecureEVotingSystem:
         block_string = json.dumps(block_copy, sort_keys=True).encode()
         return self.sha256_bytes(block_string)
 
+    def normalize_token(self, token):
+        return token.replace("-", "").replace(" ", "").upper()
+
+    def generate_readable_token(self):
+        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        raw_token = "".join(secrets.choice(alphabet) for _ in range(12))
+
+        return f"{raw_token[0:4]}-{raw_token[4:8]}-{raw_token[8:12]}"
+
     def row_to_block(self, row):
         return {
             "index": row["block_index"],
@@ -295,9 +305,10 @@ class SecureEVotingSystem:
 
     def register_voter(self, voter_name, pin):
         voter_id = self.generate_voter_id()
-        token = os.urandom(8).hex()
+        token = self.generate_readable_token()
 
-        token_hash = self.sha256_text(token)
+        token_normalized = self.normalize_token(token)
+        token_hash = self.sha256_text(token_normalized)
         pin_hash = generate_password_hash(pin)
 
         conn = get_connection()
@@ -343,7 +354,9 @@ class SecureEVotingSystem:
         return row
 
     def get_voter_by_token(self, token):
-        token_hash = self.sha256_text(token)
+        token_input = token.strip()
+        token_normalized = self.normalize_token(token_input)
+        token_hash = self.sha256_text(token_normalized)
 
         conn = get_connection()
         cursor = conn.cursor()
@@ -353,6 +366,23 @@ class SecureEVotingSystem:
             (token_hash,)
         )
         row = cursor.fetchone()
+
+        if row is None:
+            legacy_hashes = [
+                self.sha256_text(token_input),
+                self.sha256_text(token_input.lower()),
+                self.sha256_text(token_input.upper())
+            ]
+
+            for legacy_token_hash in legacy_hashes:
+                cursor.execute(
+                    "SELECT * FROM voters WHERE token_hash = ?",
+                    (legacy_token_hash,)
+                )
+                row = cursor.fetchone()
+
+                if row is not None:
+                    break
 
         conn.close()
 
@@ -721,8 +751,9 @@ class SecureEVotingSystem:
         if voter is None:
             return False, "Data pemilih tidak ditemukan.", None
 
-        new_token = os.urandom(8).hex()
-        new_token_hash = self.sha256_text(new_token)
+        new_token = self.generate_readable_token()
+        new_token_normalized = self.normalize_token(new_token)
+        new_token_hash = self.sha256_text(new_token_normalized)
 
         conn = get_connection()
         cursor = conn.cursor()

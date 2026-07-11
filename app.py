@@ -10,12 +10,28 @@ import hmac
 import os
 import secrets
 import shutil
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE_DIR)
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+ENV_PATH = os.path.join(BASE_DIR, ".env")
+
+load_dotenv(
+    dotenv_path=ENV_PATH,
+    override=True,
+    encoding="utf-8-sig"
+)
+
+env_config = dotenv_values(
+    ENV_PATH,
+    encoding="utf-8-sig"
+)
+
+for key, value in env_config.items():
+    if key and value is not None:
+        os.environ[key.strip()] = value.strip()
 
 from evoting_system import SecureEVotingSystem
 

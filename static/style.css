@@ -4,10 +4,17 @@
     padding: 0;
 }
 
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: #eef5ff;
     color: #1f2937;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .app-wrapper {
@@ -15,6 +22,7 @@ body {
     min-height: 100vh;
 }
 
+/* SIDEBAR */
 .sidebar {
     width: 285px;
     height: 100vh;
@@ -138,12 +146,14 @@ body {
     font-size: 32px;
 }
 
+/* MAIN */
 .main-content {
     margin-left: 285px;
     width: calc(100% - 285px);
     padding: 34px 38px;
 }
 
+/* TOPBAR */
 .topbar {
     background: linear-gradient(135deg, #2563eb, #60a5fa);
     color: white;
@@ -160,6 +170,7 @@ body {
 .topbar-text h1 {
     font-size: 32px;
     margin-bottom: 10px;
+    line-height: 1.25;
 }
 
 .topbar-text p {
@@ -184,6 +195,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
 }
 
 .status-dot {
@@ -202,6 +214,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .shield-bg {
@@ -237,6 +250,7 @@ body {
     font-weight: bold;
 }
 
+/* CONTENT */
 .content-card {
     background: white;
     padding: 28px;
@@ -262,6 +276,7 @@ body {
     margin-bottom: 16px;
 }
 
+/* FORM */
 form {
     display: flex;
     flex-direction: column;
@@ -275,16 +290,24 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
     padding: 13px 14px;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
     font-size: 14px;
     outline: none;
+    font-family: Arial, sans-serif;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
@@ -305,6 +328,7 @@ button:hover {
     background: #1d4ed8;
 }
 
+/* ALERT */
 .alert {
     padding: 14px 16px;
     border-radius: 14px;
@@ -326,6 +350,7 @@ button:hover {
     border: 1px solid #fecaca;
 }
 
+/* DASHBOARD */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -424,6 +449,7 @@ button:hover {
     transform: translateY(-3px);
 }
 
+/* SECURITY BOX */
 .security-box {
     background: #eff6ff;
     border: 1px solid #bfdbfe;
@@ -464,6 +490,11 @@ button:hover {
     background: #1d4ed8;
 }
 
+/* TABLE AND PRE */
+table {
+    border-collapse: collapse;
+}
+
 pre {
     background: #0f172a;
     color: #e5e7eb;
@@ -472,8 +503,17 @@ pre {
     overflow-x: auto;
     font-size: 13px;
     line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
+/* TABLE WRAPPER OPTIONAL */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* RESPONSIVE TABLET */
 @media (max-width: 1100px) {
     .topbar {
         grid-template-columns: 1fr;
@@ -492,9 +532,16 @@ pre {
     }
 }
 
+/* RESPONSIVE MOBILE */
 @media (max-width: 800px) {
+    body {
+        font-size: 14px;
+    }
+
     .app-wrapper {
-        flex-direction: column;
+        display: block;
+        width: 100%;
+        min-height: 100vh;
     }
 
     .sidebar {
@@ -502,25 +549,179 @@ pre {
         width: 100%;
         height: auto;
         min-height: auto;
+        padding: 18px;
         overflow-y: visible;
+        overflow-x: hidden;
+    }
+
+    .brand {
+        margin-bottom: 18px;
+    }
+
+    .brand-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 17px;
+    }
+
+    .brand h2 {
+        font-size: 20px;
+    }
+
+    .brand p {
+        font-size: 13px;
+    }
+
+    .menu {
+        gap: 8px;
+        padding-bottom: 10px;
+    }
+
+    .menu a {
+        padding: 12px 14px;
+        font-size: 15px;
+        border-radius: 14px;
+    }
+
+    .sidebar-footer {
+        display: none;
     }
 
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding: 20px;
+        padding: 16px;
     }
 
     .topbar {
-        padding: 24px;
+        display: block;
+        padding: 22px;
+        border-radius: 22px;
+        margin-bottom: 20px;
     }
 
     .topbar-text h1 {
-        font-size: 26px;
+        font-size: 24px;
+        line-height: 1.25;
+        margin-bottom: 10px;
+    }
+
+    .topbar-text p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .topbar-visual {
+        margin-top: 16px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .shield-illustration {
+        display: none;
+    }
+
+    .content-card {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .content-card h2 {
+        font-size: 22px;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 16px;
+        overflow-x: auto;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    button,
+    .button-link,
+    .learn-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        min-width: 650px;
+        font-size: 13px;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 12px;
+        overflow-x: auto;
     }
 
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .security-box {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* RESPONSIVE SMALL PHONE */
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 16px;
+    }
+
+    .brand {
+        gap: 12px;
+    }
+
+    .brand h2 {
+        font-size: 18px;
+    }
+
+    .brand p {
+        font-size: 12px;
+    }
+
+    .main-content {
+        padding: 12px;
+    }
+
+    .topbar {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .topbar-text h1 {
+        font-size: 22px;
+    }
+
+    .content-card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .stat-info h1 {
+        font-size: 34px;
     }
 }

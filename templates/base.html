@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure E-Voting System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -58,12 +59,12 @@
 
                     <a href="/verify" class="{% if request.path == '/verify' %}active{% endif %}">
                         <span class="menu-icon">✅</span>
-                        Verifikasi
+                        Verifikasi Blockchain
                     </a>
 
                     <a href="/chain" class="{% if request.path == '/chain' %}active{% endif %}">
                         <span class="menu-icon">🔗</span>
-                        Blockchain
+                        Data Blockchain
                     </a>
 
                     <a href="/tally" class="{% if request.path == '/tally' %}active{% endif %}">
@@ -73,7 +74,7 @@
 
                     <a href="/uji-manipulasi" class="{% if request.path == '/uji-manipulasi' %}active{% endif %}">
                         <span class="menu-icon">⚠️</span>
-                        Uji Simulasi
+                        Uji Manipulasi
                     </a>
 
                     <a href="/export" class="{% if request.path == '/export' %}active{% endif %}">
@@ -115,7 +116,7 @@
             <div class="sidebar-promo">
                 <div>
                     <h3>Data Aman</h3>
-                    <p>Hash, HMAC, Enkripsi</p>
+                    <p>Enkripsi, HMAC, Hash Chain</p>
                 </div>
                 <div class="promo-icon">🛡️</div>
             </div>
@@ -125,10 +126,11 @@
     <main class="main-content">
         <section class="topbar">
             <div class="topbar-text">
-                <h1>Sistem E-Voting Aman</h1>
+                <h1>Sistem E-Voting Berbasis Kriptografi</h1>
                 <p>
-                    Sistem voting digital dengan enkripsi, HMAC, hash chain,
-                    audit log, CSRF protection, backup database, dan verifikasi laporan.
+                    Sistem ini mengamankan proses registrasi pemilih, login token dan PIN,
+                    voting satu kali, enkripsi suara, HMAC-SHA256, hash chain, audit log,
+                    simulasi serangan, serta verifikasi laporan menggunakan RSA Digital Signature.
                 </p>
             </div>
 

@@ -31,8 +31,8 @@ system = SecureEVotingSystem()
 
 ADMIN_USERNAME = "admin"
 
-ADMIN_PASSWORD_SALT = "896f08c38fad047bc318e5b6ae11cb42"
-ADMIN_PASSWORD_HASH = "b5b8e38bc0e497fe888b93dcf8bad0da5726c93ac04430ffe977523d1cafc0d9"
+ADMIN_PASSWORD_SALT = "d3ce0cee158933cd58bcd58620d494d1"
+ADMIN_PASSWORD_HASH = "991ebcfd2f7255539c8808bd9f7e4650e3f911ec5232ead299ffefc8fc92726b"
 
 MAX_LOGIN_ATTEMPTS = 5
 LOCK_TIME_SECONDS = 300
@@ -366,9 +366,18 @@ def profile():
         flash("Data pemilih tidak ditemukan. Silakan login ulang.", "error")
         return redirect(url_for("login"))
 
+    safe_voter = {
+        "voter_id": voter["voter_id"],
+        "name": voter["name"],
+        "has_voted": voter["has_voted"],
+        "created_at": voter["created_at"],
+        "failed_login_count": voter["failed_login_count"],
+        "locked_until": voter["locked_until"]
+    }
+
     return render_template(
         "profile.html",
-        voter=voter
+        voter=safe_voter
     )
 
 
@@ -378,6 +387,286 @@ def candidates():
     return render_template(
         "candidates.html",
         candidates=system.candidates
+    )
+
+
+@app.route("/simulasi-serangan", methods=["GET", "POST"])
+def simulasi_serangan():
+    result = None
+
+    if request.method == "POST":
+        attack_type = request.form.get("attack_type", "").strip()
+
+        if attack_type == "registrasi_tanpa_kode":
+            nama = request.form.get("nama", "").strip()
+            pin = request.form.get("pin", "").strip()
+            kode_akses = request.form.get("kode_akses", "").strip()
+
+            if not kode_akses:
+                status = "Serangan Gagal"
+                message = "Registrasi ditolak karena kode akses pemilih kosong."
+            else:
+                if hmac.compare_digest(kode_akses, VOTER_ACCESS_CODE):
+                    status = "Kode Benar"
+                    message = "Kode akses benar. Pada sistem asli, registrasi dapat dilanjutkan."
+                else:
+                    status = "Serangan Gagal"
+                    message = "Kode akses salah. Registrasi tetap ditolak."
+
+            result = {
+                "title": "Percobaan Registrasi Tanpa / Dengan Kode Akses",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Nama yang dicoba: {nama or '-'}\n"
+                    f"PIN yang dicoba: {'*' * len(pin) if pin else '-'}\n"
+                    f"Kode akses yang dicoba: {kode_akses or '-'}\n\n"
+                    f"Pada sistem asli, registrasi hanya berhasil jika kode akses sesuai dengan kode resmi.\n"
+                    f"Simulasi ini tidak menyimpan data ke database."
+                )
+            }
+
+        elif attack_type == "kode_akses_salah":
+            kode_akses = request.form.get("kode_akses_salah", "").strip()
+
+            if not kode_akses:
+                status = "Serangan Gagal"
+                message = "Kode akses kosong. Registrasi ditolak."
+            elif hmac.compare_digest(kode_akses, VOTER_ACCESS_CODE):
+                status = "Kode Benar"
+                message = "Kode akses cocok. Pada sistem asli, registrasi dapat dilanjutkan."
+            else:
+                status = "Serangan Gagal"
+                message = "Kode akses salah. Registrasi ditolak."
+
+            result = {
+                "title": "Percobaan Registrasi dengan Kode Akses",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Kode akses yang dicoba: {kode_akses or '-'}\n\n"
+                    f"Sistem membandingkan kode akses menggunakan hmac.compare_digest.\n"
+                    f"Jika kode tidak cocok, akun pemilih tidak dibuat."
+                )
+            }
+
+        elif attack_type == "token_salah":
+            token = request.form.get("token_palsu", "").strip()
+            pin = request.form.get("pin_token", "").strip()
+
+            token_normalized = token.replace("-", "").replace(" ", "").upper()
+
+            if token_normalized:
+                token_hash = hashlib.sha256(token_normalized.encode()).hexdigest()
+            else:
+                token_hash = "-"
+
+            result = {
+                "title": "Percobaan Login dengan Token Salah",
+                "status": "Serangan Gagal",
+                "message": "Login ditolak karena token tidak ditemukan pada database.",
+                "technical": (
+                    f"Token yang dicoba: {token or '-'}\n"
+                    f"PIN yang dicoba: {'*' * len(pin) if pin else '-'}\n\n"
+                    f"Token setelah dinormalisasi:\n{token_normalized or '-'}\n\n"
+                    f"Hash token simulasi:\n{token_hash}\n\n"
+                    f"Pada sistem asli, hash token dicocokkan dengan token_hash di database.\n"
+                    f"Jika hash tidak cocok, login ditolak."
+                )
+            }
+
+        elif attack_type == "pin_salah":
+            jumlah_percobaan = request.form.get("jumlah_percobaan", "0").strip()
+
+            try:
+                jumlah_percobaan = int(jumlah_percobaan)
+            except ValueError:
+                jumlah_percobaan = 0
+
+            if jumlah_percobaan >= 5:
+                status = "Akun Terkunci"
+                message = "PIN salah sebanyak 5 kali atau lebih. Akun dikunci sementara."
+            elif jumlah_percobaan <= 0:
+                status = "Input Tidak Valid"
+                message = "Jumlah percobaan harus lebih dari 0."
+            else:
+                status = "Login Ditolak"
+                sisa = 5 - jumlah_percobaan
+                message = f"PIN salah. Sisa percobaan sebelum akun terkunci: {sisa}"
+
+            result = {
+                "title": "Percobaan Brute Force PIN",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Jumlah percobaan PIN salah: {jumlah_percobaan}\n\n"
+                    f"Sistem asli memiliki batas maksimal 5 percobaan PIN salah.\n"
+                    f"Jika mencapai 5 kali, akun pemilih dikunci sementara selama 5 menit."
+                )
+            }
+
+        elif attack_type == "voting_ganda":
+            status_voting = request.form.get("status_voting", "").strip()
+
+            if status_voting == "sudah":
+                status = "Serangan Gagal"
+                message = "Voting kedua ditolak karena pemilih sudah pernah melakukan voting."
+            elif status_voting == "belum":
+                status = "Voting Diizinkan"
+                message = "Pemilih belum voting, sehingga pada sistem asli pemilih masih boleh melakukan voting."
+            else:
+                status = "Input Tidak Valid"
+                message = "Status voting belum dipilih."
+
+            result = {
+                "title": "Percobaan Voting Dua Kali",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Status voting yang disimulasikan: {status_voting or '-'}\n\n"
+                    f"Sistem asli memeriksa kolom has_voted.\n"
+                    f"Jika has_voted = 1, sistem menolak voting kedua."
+                )
+            }
+
+        elif attack_type == "inspect_element":
+            teks_asli = request.form.get("teks_asli", "").strip()
+            teks_edit = request.form.get("teks_edit", "").strip()
+
+            result = {
+                "title": "Percobaan Manipulasi Tampilan dengan Inspect Element",
+                "status": "Bukan Celah Server",
+                "message": "Tampilan bisa diedit sementara di browser, tetapi data asli server tidak berubah.",
+                "technical": (
+                    f"Teks asli di halaman:\n{teks_asli or '-'}\n\n"
+                    f"Teks yang diedit lewat browser:\n{teks_edit or '-'}\n\n"
+                    f"Perubahan ini hanya terjadi di sisi client/browser.\n"
+                    f"Setelah halaman di-refresh, tampilan kembali mengikuti data asli dari server."
+                )
+            }
+
+        elif attack_type == "manipulasi_hmac":
+            vote_asli = request.form.get("vote_asli", "").strip()
+            vote_manipulasi = request.form.get("vote_manipulasi", "").strip()
+
+            demo_key = b"demo_hmac_key"
+
+            original_data = f"vote={vote_asli}".encode()
+            tampered_data = f"vote={vote_manipulasi}".encode()
+
+            original_hmac = hmac.new(
+                demo_key,
+                original_data,
+                hashlib.sha256
+            ).hexdigest()
+
+            tampered_hmac = hmac.new(
+                demo_key,
+                tampered_data,
+                hashlib.sha256
+            ).hexdigest()
+
+            if hmac.compare_digest(original_hmac, tampered_hmac):
+                status = "Tidak Ada Perubahan"
+                message = "Data tidak berubah, sehingga HMAC masih sama."
+            else:
+                status = "Manipulasi Terdeteksi"
+                message = "Data suara berubah, sehingga HMAC hasil hitung ulang tidak cocok dengan HMAC asli."
+
+            result = {
+                "title": "Percobaan Manipulasi HMAC-SHA256",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Vote asli: {vote_asli or '-'}\n"
+                    f"Vote manipulasi: {vote_manipulasi or '-'}\n\n"
+                    f"HMAC data asli:\n{original_hmac}\n\n"
+                    f"HMAC setelah manipulasi:\n{tampered_hmac}\n\n"
+                    f"Jika HMAC berbeda, berarti data sudah berubah."
+                )
+            }
+
+        elif attack_type == "hash_chain":
+            vote_asli = request.form.get("hash_vote_asli", "").strip()
+            vote_edit = request.form.get("hash_vote_edit", "").strip()
+
+            block_asli = {
+                "index": 1,
+                "vote": vote_asli,
+                "previous_hash": "GENESIS_HASH"
+            }
+
+            hash_asli = hashlib.sha256(
+                json.dumps(block_asli, sort_keys=True).encode()
+            ).hexdigest()
+
+            block_edit = {
+                "index": 1,
+                "vote": vote_edit,
+                "previous_hash": "GENESIS_HASH"
+            }
+
+            hash_edit = hashlib.sha256(
+                json.dumps(block_edit, sort_keys=True).encode()
+            ).hexdigest()
+
+            if hmac.compare_digest(hash_asli, hash_edit):
+                status = "Tidak Ada Perubahan"
+                message = "Isi blok tidak berubah, sehingga hash tetap sama."
+            else:
+                status = "Manipulasi Terdeteksi"
+                message = "Isi blok berubah, sehingga hash blok ikut berubah."
+
+            result = {
+                "title": "Percobaan Manipulasi Hash Chain",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Blok asli:\n{json.dumps(block_asli, indent=4)}\n\n"
+                    f"Hash blok asli:\n{hash_asli}\n\n"
+                    f"Blok setelah diedit:\n{json.dumps(block_edit, indent=4)}\n\n"
+                    f"Hash setelah diedit:\n{hash_edit}"
+                )
+            }
+
+        elif attack_type == "edit_laporan":
+            laporan_asli = request.form.get("laporan_asli", "").strip()
+            laporan_edit = request.form.get("laporan_edit", "").strip()
+
+            hash_asli = hashlib.sha256(laporan_asli.encode()).hexdigest()
+            hash_edit = hashlib.sha256(laporan_edit.encode()).hexdigest()
+
+            if hmac.compare_digest(hash_asli, hash_edit):
+                status = "Laporan Tidak Berubah"
+                message = "Hash masih sama karena isi laporan tidak berubah."
+            else:
+                status = "Manipulasi Terdeteksi"
+                message = "Isi laporan berubah, sehingga hash laporan ikut berubah."
+
+            result = {
+                "title": "Percobaan Edit Laporan CSV",
+                "status": status,
+                "message": message,
+                "technical": (
+                    f"Isi laporan asli:\n{laporan_asli or '-'}\n\n"
+                    f"Hash laporan asli:\n{hash_asli}\n\n"
+                    f"Isi laporan setelah diedit:\n{laporan_edit or '-'}\n\n"
+                    f"Hash setelah diedit:\n{hash_edit}\n\n"
+                    f"Pada sistem asli, laporan juga dilindungi dengan digital signature RSA."
+                )
+            }
+
+        else:
+            result = {
+                "title": "Simulasi Tidak Valid",
+                "status": "Gagal",
+                "message": "Jenis simulasi tidak dikenali.",
+                "technical": "-"
+            }
+
+    return render_template(
+        "simulasi_serangan.html",
+        result=result
     )
 
 
@@ -663,9 +952,8 @@ def verify_report():
 @admin_required
 def uji_manipulasi():
     if not ENABLE_TAMPER_DEMO:
-        pass  # demo manipulasi diaktifkan
-        # # flash("Fitur uji manipulasi sedang dinonaktifkan.", "error")
-        # # return redirect(url_for("verify"))
+        flash("Fitur uji manipulasi sedang dinonaktifkan. Aktifkan EVOTING_MODE=demo untuk pengujian.", "error")
+        return redirect(url_for("verify"))
 
     if request.method == "POST":
         admin_password = request.form.get("admin_password", "").strip()

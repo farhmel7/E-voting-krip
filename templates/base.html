@@ -20,6 +20,12 @@
             </div>
 
             <nav class="menu">
+
+                <a href="/simulasi-serangan" class="{% if request.path == '/simulasi-serangan' %}active{% endif %}">
+                    <span class="menu-icon">🧪</span>
+                    Simulasi Serangan
+                </a>
+
                 {% if session.get("role") %}
                     <a href="/" class="{% if request.path == '/' %}active{% endif %}">
                         <span class="menu-icon">🏠</span>
@@ -90,6 +96,16 @@
                     <a href="/logout">
                         <span class="menu-icon">🚪</span>
                         Logout
+                    </a>
+                {% else %}
+                    <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">
+                        <span class="menu-icon">🔐</span>
+                        Login
+                    </a>
+
+                    <a href="/register" class="{% if request.path == '/register' %}active{% endif %}">
+                        <span class="menu-icon">📝</span>
+                        Registrasi
                     </a>
                 {% endif %}
             </nav>

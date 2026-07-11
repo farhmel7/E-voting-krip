@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Simulasi Serangan Interaktif</h2>
+
+<div class="card">
+    <p>
+        Halaman ini disediakan agar kelompok penguji dapat mencoba beberapa skenario serangan
+        secara langsung melalui form input. Semua pengujian pada halaman ini bersifat simulasi,
+        sehingga tidak mengubah database asli, data pemilih asli, maupun hasil voting asli.
+    </p>
+</div>
+
+<div class="card">
+    <h3>1. Registrasi Tanpa / Dengan Kode Akses</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="registrasi_tanpa_kode">
+
+        <label>Nama Pemilih</label>
+        <input type="text" name="nama" placeholder="Contoh: Penguji 1">
+
+        <label>PIN</label>
+        <input type="password" name="pin" placeholder="Contoh: 1234">
+
+        <label>Kode Akses</label>
+        <input type="text" name="kode_akses" placeholder="Kosongkan atau isi kode palsu">
+
+        <button type="submit">Coba Registrasi</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>2. Registrasi dengan Kode Akses Salah</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="kode_akses_salah">
+
+        <label>Kode Akses yang Dicoba</label>
+        <input type="text" name="kode_akses_salah" placeholder="Contoh: KODEPALSU123">
+
+        <button type="submit">Coba Kode Akses</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>3. Login dengan Token Salah</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="token_salah">
+
+        <label>Token yang Dicoba</label>
+        <input type="text" name="token_palsu" placeholder="Contoh: ABCD-1234-EFGH">
+
+        <label>PIN</label>
+        <input type="password" name="pin_token" placeholder="Contoh: 1234">
+
+        <button type="submit">Coba Login</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>4. Brute Force PIN</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="pin_salah">
+
+        <label>Jumlah Percobaan PIN Salah</label>
+        <input type="number" name="jumlah_percobaan" min="1" max="10" placeholder="Contoh: 5">
+
+        <button type="submit">Coba Brute Force</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>5. Voting Dua Kali</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="voting_ganda">
+
+        <label>Status Pemilih</label>
+        <select name="status_voting" required>
+            <option value="">-- Pilih Status --</option>
+            <option value="belum">Belum Voting</option>
+            <option value="sudah">Sudah Voting</option>
+        </select>
+
+        <button type="submit">Coba Voting</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>6. Manipulasi Tampilan dengan Inspect Element</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="inspect_element">
+
+        <label>Teks Asli</label>
+        <input type="text" name="teks_asli" value="Status Voting: Belum Voting">
+
+        <label>Teks Setelah Diedit di Browser</label>
+        <input type="text" name="teks_edit" value="Status Voting: Sudah Voting">
+
+        <button type="submit">Coba Manipulasi Tampilan</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>7. Manipulasi HMAC-SHA256</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="manipulasi_hmac">
+
+        <label>Vote Asli</label>
+        <select name="vote_asli" required>
+            <option value="">-- Pilih Vote Asli --</option>
+            <option value="Kandidat 1">Kandidat 1</option>
+            <option value="Kandidat 2">Kandidat 2</option>
+            <option value="Kandidat 3">Kandidat 3</option>
+        </select>
+
+        <label>Vote Setelah Dimanipulasi</label>
+        <select name="vote_manipulasi" required>
+            <option value="">-- Pilih Vote Manipulasi --</option>
+            <option value="Kandidat 1">Kandidat 1</option>
+            <option value="Kandidat 2">Kandidat 2</option>
+            <option value="Kandidat 3">Kandidat 3</option>
+        </select>
+
+        <button type="submit">Coba Manipulasi HMAC</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>8. Manipulasi Hash Chain</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="hash_chain">
+
+        <label>Vote Asli di Blok</label>
+        <select name="hash_vote_asli" required>
+            <option value="">-- Pilih Vote Asli --</option>
+            <option value="Kandidat 1">Kandidat 1</option>
+            <option value="Kandidat 2">Kandidat 2</option>
+            <option value="Kandidat 3">Kandidat 3</option>
+        </select>
+
+        <label>Vote Setelah Blok Diedit</label>
+        <select name="hash_vote_edit" required>
+            <option value="">-- Pilih Vote Edit --</option>
+            <option value="Kandidat 1">Kandidat 1</option>
+            <option value="Kandidat 2">Kandidat 2</option>
+            <option value="Kandidat 3">Kandidat 3</option>
+        </select>
+
+        <button type="submit">Coba Manipulasi Hash Chain</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>9. Edit Laporan CSV</h3>
+    <form method="POST" action="/simulasi-serangan">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="attack_type" value="edit_laporan">
+
+        <label>Isi Laporan Asli</label>
+        <textarea name="laporan_asli" rows="4">Kandidat 1,1
+Kandidat 2,0
+Kandidat 3,0</textarea>
+
+        <label>Isi Laporan Setelah Diedit</label>
+        <textarea name="laporan_edit" rows="4">Kandidat 1,0
+Kandidat 2,1
+Kandidat 3,0</textarea>
+
+        <button type="submit">Coba Edit Laporan</button>
+    </form>
+</div>
+
+{% if result %}
+    <div class="card result-card">
+        <h3>{{ result.title }}</h3>
+
+        <p>
+            <strong>Status:</strong> {{ result.status }}
+        </p>
+
+        <p>
+            <strong>Hasil:</strong> {{ result.message }}
+        </p>
+
+        <p><strong>Penjelasan Teknis:</strong></p>
+        <pre>{{ result.technical }}</pre>
+    </div>
+{% endif %}
+
+{% endblock %}

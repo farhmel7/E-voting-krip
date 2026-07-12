@@ -23,19 +23,28 @@
         display: flex;
         flex-direction: column;
         gap: 14px;
-        max-width: 600px;
+        max-width: 650px;
     }
 
-    .upload-form input[type="file"] {
+    .file-upload-box {
+        background: #f9fafb;
+        border: 2px dashed #93c5fd;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .file-upload-box input[type="file"] {
+        width: 100%;
         padding: 12px;
         border: 1px solid #d1d5db;
         border-radius: 10px;
-        background: #f9fafb;
+        background: white;
+        cursor: pointer;
     }
 
     .upload-form button {
         width: fit-content;
-        padding: 11px 18px;
+        padding: 12px 20px;
         border: none;
         border-radius: 10px;
         background: #2563eb;
@@ -83,12 +92,14 @@
         padding: 12px;
         text-align: left;
         width: 240px;
+        vertical-align: top;
     }
 
     .detail-table td {
         padding: 12px;
         border-bottom: 1px solid #e5e7eb;
         word-break: break-all;
+        vertical-align: top;
     }
 
     .badge {
@@ -119,25 +130,45 @@
         border-radius: 10px;
         line-height: 1.6;
     }
+
+    @media (max-width: 800px) {
+        .upload-form {
+            max-width: 100%;
+        }
+
+        .upload-form button {
+            width: 100%;
+        }
+
+        .detail-table {
+            min-width: 700px;
+        }
+
+        .verify-box {
+            overflow-x: auto;
+        }
+    }
 </style>
 
 <div class="verify-box">
     <h3>Upload File Laporan CSV</h3>
 
-    <form method="POST" enctype="multipart/form-data" class="upload-form">
+    <form method="POST" action="/verify-report" enctype="multipart/form-data" class="upload-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
         <label for="report_file">
             Pilih file laporan hasil export:
         </label>
 
-        <input
-            type="file"
-            id="report_file"
-            name="report_file"
-            accept=".csv"
-            required
-        >
+        <div class="file-upload-box">
+            <input
+                type="file"
+                id="report_file"
+                name="report_file"
+                accept=".csv,text/csv"
+                required
+            >
+        </div>
 
         <button type="submit">
             Verifikasi Laporan
